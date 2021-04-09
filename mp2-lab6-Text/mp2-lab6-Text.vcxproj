@@ -140,9 +140,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="mp2-lab6-Text.cpp" />
-    <ClCompile Include="TText.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Stack.h" />
     <ClInclude Include="TText.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

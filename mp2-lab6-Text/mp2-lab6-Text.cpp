@@ -1,6 +1,11 @@
-﻿#include <iostream>
+﻿//#include <iostream>
+#include "TText.h"
+
+
+TMem TText::mem;
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    TText::InitMem(100);
+    TText text;
 }

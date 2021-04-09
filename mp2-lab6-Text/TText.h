@@ -1,6 +1,8 @@
 #pragma once
+#include <fstream>
 #include <iostream>
-#include <stack>
+//#include <stack>
+#include "Stack.h"
 
 class TTextLink
 {
@@ -8,7 +10,7 @@ public:
 	bool flag;
 	TTextLink* pNext, * pDown;
 	char str[80];
-	//static TMem mem;
+	static TMem mem;
 	TTextLink(char* s = NULL, TTextLink* pn = NULL, TTextLink* ph = NULL)
 	{
 		if (s == NULL)
@@ -25,6 +27,65 @@ public:
 		pNext = pn;
 		pDown = ph;
 	}
+	//static void InitMem(int size = 100);
+	void* operator new (std::size_t n)
+	{
+		TTextLink* pC = mem.pFree;
+		if (mem.pFree != NULL)
+		{
+			mem.pFree = mem.pFree->pNext;
+		}
+		return pC;
+	}
+	void operator delete (void* p)
+	{
+		TTextLink* pC = (TTextLink*)p;
+		pC->pNext = mem.pFree;
+		mem.pFree = pC;
+	}
+	static void InitMem(int size = 100)
+	{
+		int esize = sizeof(TTextLink) * size;
+		mem.pFirst = mem.pFree = (TTextLink*)malloc(esize);
+		mem.pLast = mem.pFirst + (size - 1);
+		TTextLink* tmp = mem.pFree;
+		while (tmp != mem.pLast)
+		{
+			tmp->pNext = tmp + 1;
+			tmp->flag = false;
+			tmp->str[0] = '\o';
+			tmp = tmp->pNext;
+		}
+		tmp->pNext = NULL;
+		tmp->flag = false;
+	}
+	static void PrintFree();
+	static void Clean(TText& t)
+	{
+		TTextLink* tmp = mem.pFree;
+		while (tmp != NULL)
+		{
+			tmp->flag = 1;
+			tmp = tmp->pNext;
+		}
+		for (t.Reset(); !t.IsEnd(); t.GoNext())
+		{
+			t.pCurr->flag = 1;
+			tmp = mem.pFirst;
+			while (tmp <= mem.pLast)
+			{
+				if (tmp->flag == 1)
+					tmp->flag = 0;
+				else
+					delete tmp;
+			}
+		}
+	}
+};
+
+struct TMem 
+{
+	TTextLink* pFirst, * pLast, * pFree;
 };
 
 class TText
@@ -32,31 +93,29 @@ class TText
 	int level;
 	TTextLink* pFirst;
 	TTextLink* pCurr;
-	std::stack<TTextLink> st;
+	Stack<TTextLink*> st;
+	//static TMem mem;
 public:
 	void GoFirstLink()
 	{	
 		pCurr = pFirst;
-		if (!st.empty())
-		{
-			while (!st.empty())
-				st.pop();
-		}
+		if (!st.Empty())
+			st.StClear();
 	}
 	void GoNextLink()
 	{
 		if (pCurr->pNext != NULL)
 		{
-			st.push(pCurr);
+			st.Push(pCurr);
 			pCurr = pCurr->pNext;
 		}
 	}
 	void GoDownLink()
 	{
-		if (!st.empty())
+		if (!st.Empty())
 		{
-			pCurr = st.top();
-			st.pop();
+			pCurr = st.Top();
+			st.Pop();
 		}
 	}
 	void InsNextLine(char* s)
@@ -69,11 +128,29 @@ public:
 	}
 	void InsNextSection(char* s)
 	{
-		TTextLink* t = new TTextLink(s, NULL, pCurr->pNext);
+		//TTextLink* t = new TTextLink(s, NULL, pCurr->pNext);
+		TTextLink* t = (TTextLink*)(TTextLink::operator new(1));
+		strcpy_s(t->str, s);
+		t->pNext = NULL;
+		t->pDown = pCurr->pNext;
 		pCurr->pNext = t;
 	}
-	void InsDownLine(char* s) {}
-	void InsDownSection(char* s) {}
+	void InsDownLine(char* s) 
+	{
+		TTextLink* t = (TTextLink*)(TTextLink::operator new(1));
+		strcpy_s(t->str, s);
+		t->pNext = pCurr->pDown;
+		t->pDown = NULL;
+		pCurr->pDown = t;
+	}
+	void InsDownSection(char* s) 
+	{
+		TTextLink* t = (TTextLink*)(TTextLink::operator new(1));
+		strcpy_s(t->str, s);
+		t->pNext = pCurr->pDown;
+		t->pDown = NULL;
+		pCurr->pDown = t;
+	}
 	void DelNextLine()
 	{
 		if (pCurr->pNext)
@@ -172,27 +249,30 @@ public:
 	{
 		if (pFirst != NULL)
 		{
-				while (!st.empty())
-					st.pop();
+			st.StClear();
 		}
 		pCurr = pFirst;
-		st.push(pFirst);
+		st.Push(pFirst);
 		if (pFirst->pNext)
 		{
-			st.push(pFirst->pNext);
+			st.Push(pFirst->pNext);
 			if (pFirst->pDown)
-				st.push(pFirst->pDown);
+				st.Push(pFirst->pDown);
 		}
 	}
 	void GoNext()
 	{
-		pCurr = st.pop();
+		pCurr = st.Pop();
 		if (pCurr != pFirst)
 		{
 			if (pCurr->pNext)
-				st.push(pCurr->pNext);
+				st.Push(pCurr->pNext);
 			if (pCurr->pDown)
-				st.push(pCurr->pDown);
+				st.Push(pCurr->pDown);
 		}
+	}
+	bool IsEnd()
+	{
+		return st.Empty();
 	}
 };
