@@ -2,10 +2,11 @@
 #include "TText.h"
 
 
-TMem TText::mem;
+TMem TTextLink::mem;
 
 int main()
 {
-    TText::InitMem(100);
+    TTextLink::InitMem(100);
     TText text;
+    text.ReadRec("Textt.txt");
 }

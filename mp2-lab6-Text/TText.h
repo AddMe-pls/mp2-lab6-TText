@@ -4,6 +4,13 @@
 //#include <stack>
 #include "Stack.h"
 
+class TText;
+class TTextLink;
+struct TMem
+{
+	TTextLink* pFirst, * pLast, * pFree;
+};
+
 class TTextLink
 {
 public:
@@ -60,33 +67,10 @@ public:
 		tmp->flag = false;
 	}
 	static void PrintFree();
-	static void Clean(TText& t)
-	{
-		TTextLink* tmp = mem.pFree;
-		while (tmp != NULL)
-		{
-			tmp->flag = 1;
-			tmp = tmp->pNext;
-		}
-		for (t.Reset(); !t.IsEnd(); t.GoNext())
-		{
-			t.pCurr->flag = 1;
-			tmp = mem.pFirst;
-			while (tmp <= mem.pLast)
-			{
-				if (tmp->flag == 1)
-					tmp->flag = 0;
-				else
-					delete tmp;
-			}
-		}
-	}
+	static void Clean(TText& t);
 };
 
-struct TMem 
-{
-	TTextLink* pFirst, * pLast, * pFree;
-};
+
 
 class TText
 {
@@ -96,6 +80,10 @@ class TText
 	Stack<TTextLink*> st;
 	//static TMem mem;
 public:
+	void SetCurFlagOne()
+	{
+		pCurr->flag = 1;
+	}
 	void GoFirstLink()
 	{	
 		pCurr = pFirst;
@@ -121,7 +109,7 @@ public:
 	void InsNextLine(char* s)
 	{
 		TTextLink* t = new TTextLink;
-		strcpy(t->str, s);
+		strcpy_s(t->str, s);
 		t->pNext = pCurr->pNext;
 		t->pDown = NULL;
 		pCurr->pNext = t;
@@ -276,3 +264,27 @@ public:
 		return st.Empty();
 	}
 };
+
+
+void TTextLink::Clean(TText& t)
+	{
+	TTextLink* tmp = mem.pFree;
+	while (tmp != NULL)
+	{
+		tmp->flag = 1;
+		tmp = tmp->pNext;
+	}
+	for (t.Reset(); !t.IsEnd(); t.GoNext())
+	{
+		//t.pCurr->flag = 1;
+		t.SetCurFlagOne();
+		tmp = mem.pFirst;
+		while (tmp <= mem.pLast)
+		{
+			if (tmp->flag == 1)
+				tmp->flag = 0;
+			else
+				delete tmp;
+		}
+	}
+	}
