@@ -38,7 +38,7 @@ public:
 	void* operator new (std::size_t n)
 	{
 		TTextLink* pC = mem.pFree;
-		if (mem.pFree != NULL)
+		if (mem.pFree->pNext != NULL)
 		{
 			mem.pFree = mem.pFree->pNext;
 		}
@@ -197,7 +197,7 @@ public:
 				SaveRec(t->pNext, osf);
 		}
 	}
-	void Read(char* fn)
+	void Read(const char* fn)
 	{
 		std::ifstream ifs(fn);
 		pFirst = ReadRec(ifs);
@@ -219,7 +219,7 @@ public:
 				}
 				else
 				{
-					TTextLink* tmp = new TTextLink(Ruff);
+					TTextLink* tmp = (TTextLink (Ruff))(TTextLink::operator new(1));
 					if (pC == NULL)
 					{
 						pF = pC = tmp;

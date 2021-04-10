@@ -8,5 +8,6 @@ int main()
 {
     TTextLink::InitMem(100);
     TText text;
-    text.ReadRec("Textt.txt");
+    text.Read("Textt.txt");
+    text.Print();
 }
