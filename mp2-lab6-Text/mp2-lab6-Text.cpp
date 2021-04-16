@@ -6,7 +6,7 @@ TMem TTextLink::mem;
 
 int main()
 {
-    TTextLink::InitMem(100);
+    TTextLink::InitMem;
     TText text;
     text.Read("Textt.txt");
     text.Print();
