@@ -55,12 +55,12 @@ void TTextLink::InitMem(int size)
 void TTextLink::Clean(TText& t)
 {
 	TTextLink* tmp = mem.pFree;
-	while (tmp != NULL)
+	while (tmp != mem.pLast)
 	{
 		tmp->flag = true;
 		tmp = tmp->pNext;
 	}
-	tmp->flag = false;
+	tmp->flag = true;//?
 	for (t.Reset(); !t.IsEnd(); t.GoNext())
 	{
 		//t.pCurr->flag = 1;
@@ -92,6 +92,7 @@ void TTextLink::PrintFree()
 	}
 	if (tmp->str[0] != '\0')
 		std::cout << tmp->str << ' ';
+	std::cout<<std::endl;
 }
 
 void TText::InsNextLine(char* s)
@@ -136,7 +137,8 @@ void TText::DelNextLine()
 	{
 		TTextLink* t = pCurr->pNext;
 		pCurr->pNext = t->pNext;
-		delete t;
+		//delete t;
+		TTextLink::operator delete(t);
 	}
 }
 
@@ -146,7 +148,8 @@ void TText::DelDownLine()
 	{
 		TTextLink* t = pCurr->pDown;
 		pCurr->pDown = t->pNext;
-		delete t;
+		//delete t;
+		TTextLink::operator delete(t);
 	}
 }
 
@@ -170,7 +173,7 @@ void TText::PrintRec(TTextLink* t)
 	}
 }
 
-void TText::Save(char* fn)
+void TText::Save(const char* fn)
 {
 	std::ofstream osf;
 	osf.open(fn);

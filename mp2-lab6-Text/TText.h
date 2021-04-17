@@ -39,7 +39,7 @@ class TText
 public:
 	void SetCurFlagOne()
 	{
-		pCurr->flag = 1;
+		pCurr->flag = true;
 	}
 	void GoFirstLink()
 	{	
@@ -79,7 +79,7 @@ public:
 	void DelDownLine();
 	void Print();
 	void PrintRec(TTextLink* t);
-	void Save(char* fn);
+	void Save(const char* fn);
 	void SaveRec(TTextLink* t, std::ofstream& osf);
 	void Read(const char* fn);
 	TTextLink* ReadRec(std::ifstream& ifs);
